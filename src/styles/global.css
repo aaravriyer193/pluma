@@ -1,0 +1,376 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: rgba(16, 16, 18, 0.88);
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.14);
+  --text: rgba(255, 255, 255, 0.92);
+  --text-dim: rgba(255, 255, 255, 0.45);
+  --text-faint: rgba(255, 255, 255, 0.22);
+  --divider: rgba(255, 255, 255, 0.06);
+  --radius: 16px;
+  --radius-sm: 9px;
+  --font: 'DM Sans', -apple-system, system-ui, sans-serif;
+  --font-mono: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  --shadow: 0 24px 60px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4);
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--font);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Shell ────────────────────────────────────────────────────────────────── */
+.pluma-shell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.pluma-card {
+  width: 660px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(40px) saturate(160%);
+  -webkit-backdrop-filter: blur(40px) saturate(160%);
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Command bar ──────────────────────────────────────────────────────────── */
+.command-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  height: 62px;
+  flex-shrink: 0;
+}
+
+.bar-logo {
+  width: 18px;
+  height: 18px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.command-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 17px;
+  font-family: var(--font);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  caret-color: var(--text);
+}
+
+.command-bar input::placeholder { color: var(--text-faint); }
+
+/* command prefix shown inside input row */
+.cmd-prefix {
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 100ms;
+}
+.icon-btn:hover { color: var(--text-dim); }
+.icon-btn.on { color: var(--text); }
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-top-color: var(--text-dim);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+.divider { width: 100%; height: 1px; background: var(--divider); flex-shrink: 0; }
+
+/* ── Context bar ──────────────────────────────────────────────────────────── */
+.ctx-bar {
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.ctx-label {
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+.ctx-value {
+  font-size: 12px;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Whisper ──────────────────────────────────────────────────────────────── */
+.whisper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+.messages::-webkit-scrollbar { width: 3px; }
+.messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.msg-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+.msg { display: flex; flex-direction: column; gap: 3px; max-width: 90%; }
+.msg.user { align-self: flex-end; align-items: flex-end; }
+.msg.assistant { align-self: flex-start; }
+
+.msg-role {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0 3px;
+}
+
+.msg-body {
+  padding: 9px 13px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  word-break: break-word;
+  white-space: pre-wrap;
+  border: 1px solid var(--border);
+}
+.msg.user .msg-body { background: rgba(255,255,255,0.07); }
+.msg.assistant .msg-body { background: rgba(255,255,255,0.03); font-family: var(--font); font-size: 13.5px; }
+
+/* ── Markdown inside assistant bubbles ────────────────────────────────────── */
+.msg.assistant .msg-body p { margin: 0 0 6px; }
+.msg.assistant .msg-body p:last-child { margin-bottom: 0; }
+.msg.assistant .msg-body ul, .msg.assistant .msg-body ol { padding-left: 16px; margin: 4px 0; }
+.msg.assistant .msg-body li { margin: 2px 0; }
+.msg.assistant .msg-body code { font-family: var(--font-mono); font-size: 11.5px; background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; }
+.msg.assistant .msg-body pre { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; overflow-x: auto; margin: 6px 0; }
+.msg.assistant .msg-body pre code { background: none; padding: 0; font-size: 11.5px; }
+.msg.assistant .msg-body h1, .msg.assistant .msg-body h2, .msg.assistant .msg-body h3 { font-size: 13.5px; font-weight: 600; margin: 6px 0 3px; }
+.msg.assistant .msg-body a { color: var(--text-dim); text-decoration: underline; }
+.msg.assistant .msg-body strong { font-weight: 600; }
+.msg.assistant .msg-body blockquote { border-left: 2px solid var(--border-hover); padding-left: 10px; color: var(--text-dim); margin: 4px 0; }
+
+.cursor {
+  display: inline-block;
+  width: 5px;
+  height: 12px;
+  background: var(--text-dim);
+  border-radius: 1px;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 0.8s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.whisper-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px 14px;
+  border-top: 1px solid var(--divider);
+}
+
+.whisper-input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--font);
+  padding: 8px 12px;
+  outline: none;
+  resize: none;
+  line-height: 1.4;
+  max-height: 80px;
+  transition: border-color 100ms;
+}
+.whisper-input:focus { border-color: var(--border-hover); }
+.whisper-input::placeholder { color: var(--text-faint); }
+
+.send-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-dim);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 100ms, color 100ms;
+  flex-shrink: 0;
+}
+.send-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: var(--text); }
+.send-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+/* ── Settings ─────────────────────────────────────────────────────────────── */
+.settings {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 18px;
+  height: 58px;
+  border-bottom: 1px solid var(--divider);
+}
+.settings-head h2 {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.settings-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.field input, .field select {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--font-mono);
+  padding: 8px 11px;
+  outline: none;
+  transition: border-color 100ms;
+  width: 100%;
+}
+.field input:focus, .field select:focus { border-color: var(--border-hover); }
+.field select { cursor: pointer; }
+.field select option { background: #111113; }
+.field .hint { font-size: 11px; color: var(--text-faint); line-height: 1.4; }
+.field .hint a { color: var(--text-dim); }
+.field .err { font-size: 11px; color: rgba(248,113,113,0.8); }
+
+.settings-foot {
+  padding: 0 18px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn {
+  padding: 7px 15px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: background 100ms, color 100ms;
+  letter-spacing: 0.02em;
+}
+.btn-ghost { background: transparent; color: var(--text-dim); }
+.btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.btn-primary { background: rgba(255,255,255,0.1); color: var(--text); border-color: var(--border-hover); }
+.btn-primary:hover { background: rgba(255,255,255,0.15); }
+
+/* ── Toast ────────────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 14px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border-hover);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text-dim);
+  pointer-events: none;
+  white-space: nowrap;
+  animation: fadeUp 0.15s ease, fadeOut 0.25s ease 1.6s forwards;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes fadeOut { to { opacity: 0; } }
