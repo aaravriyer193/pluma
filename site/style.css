@@ -57,6 +57,13 @@ body {
   transition: background 0.15s !important;
 }
 .nav-cta:hover { background: rgba(255,255,255,0.14) !important; }
+.nav-github {
+  display: flex; align-items: center;
+  color: var(--faint) !important; padding: 6px 8px !important;
+  border-radius: 8px !important; transition: color 0.15s !important;
+  background: none !important; border: none !important;
+}
+.nav-github:hover { color: var(--dim) !important; background: rgba(255,255,255,0.05) !important; }
 
 /* ── Layout ──────────────────────────────────────────────────────── */
 .page { padding-top: 62px; }
