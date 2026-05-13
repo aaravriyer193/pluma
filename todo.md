@@ -3,4 +3,5 @@
 - [ ] Enable file I/O, search indexing, and system control
 - [ ] Implement restricted terminal execution
 - [ ] Optimize for rapid deployment and quick access
+- [ ] Split into quick forground and heavy usage background tasks, the show task happening with app logo as a widget
 - [ ] **Demo:** Integrate ManageBac to audit assignments, timetables, and submit tasks
