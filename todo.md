@@ -4,5 +4,7 @@
 - [ ] Enable file I/O, search indexing, and system control
 - [ ] Implement restricted terminal execution
 - [ ] Optimize for rapid deployment and quick access
-- [ ] Split into quick forground and heavy usage background tasks, the show task happening with app logo as a widget
-- [ ] **Demo:** Integrate ManageBac to audit assignments, timetables, and submit tasks
+- [ ] Split into quick forground and heavy usage background tasks, the show task happening as a widget
+- [ ] A local RAG DB where the AI stores all the info about human including everything is seen (written after turn) so it can retrieve stuff without going into the system each time
+- [ ] still shown fast lightweight glass to user
+- [ ] **Demo for me to try** Integrate ManageBac to audit assignments, timetables, and submit tasks
