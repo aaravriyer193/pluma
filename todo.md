@@ -1,5 +1,6 @@
 - [ ] Deploy autonomous agent with high reliability
 - [ ] Integrate NVIDIA Nemotron-3 Nano model
+- [ ] Make the tool calls trunacate less
 - [ ] Enable file I/O, search indexing, and system control
 - [ ] Implement restricted terminal execution
 - [ ] Optimize for rapid deployment and quick access
