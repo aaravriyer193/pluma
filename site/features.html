@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Features — Pluma</title>
+  <meta name="description" content="Everything Pluma can do — ghost writing, computer use, memory, terminal, and more."/>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .hero-sm { padding: 100px 0 60px; }
+    .hero-sm h1 { font-size: clamp(32px,5vw,52px); margin-bottom: 16px; }
+
+    .feat-section { padding: 0 0 100px; }
+    .feat-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+      align-items: center; padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    .feat-row.reverse { direction: rtl; }
+    .feat-row.reverse > * { direction: ltr; }
+    @media(max-width:720px){ .feat-row, .feat-row.reverse { grid-template-columns:1fr; direction:ltr; } }
+    .feat-text .tag {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--faint); border: 1px solid var(--border);
+      border-radius: 4px; padding: 3px 8px; margin-bottom: 20px;
+    }
+    .feat-text h2 { font-size: clamp(22px,3vw,32px); margin-bottom: 16px; }
+    .feat-text p { margin-bottom: 16px; font-size: 15px; }
+    .feat-text ul { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .feat-text ul li { display: flex; gap: 10px; font-size: 14px; color: var(--dim); }
+    .feat-text ul li::before { content: '→'; color: var(--faint); flex-shrink: 0; }
+    .feat-visual {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--dim);
+      min-height: 180px;
+    }
+    .feat-visual .cmd { color: rgba(255,255,255,0.5); }
+    .feat-visual .out { color: rgba(160,200,170,0.7); }
+    .feat-visual .dim { color: var(--faint); }
+
+    .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 12px; margin-top: 56px; }
+    .cmd-card { background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+    .cmd-card .name { font-family: var(--mono); font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 6px; }
+    .cmd-card .desc { font-size: 12.5px; color: var(--faint); line-height: 1.5; }
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <svg viewBox="0 0 512 512" fill="currentColor"><path d="M467.14 44.84c-62.55-62.48-161.67-64.78-252.28 25.73-78.61 78.52-60.98 60.92-85.75 85.66-60.46 60.39-70.39 150.83-63.64 211.17l178.44-178.25c6.26-6.25 16.4-6.25 22.65 0s6.25 16.38 0 22.63L7.04 471.03c-9.38 9.37-9.38 24.57 0 33.94 9.38 9.37 24.6 9.37 33.98 0l66.1-66.03C159.42 454.65 279 457.11 353.95 384h-98.19l147.57-49.14c49.99-49.93 36.38-36.18 46.31-46.86h-97.78l131.54-43.8c45.44-74.46 34.31-148.84-16.26-199.36z"/></svg>
+    Pluma
+  </a>
+  <div class="nav-links">
+    <a href="features.html" class="active">Features</a>
+    <a href="docs.html">Docs</a>
+    <a href="about.html">About</a>
+    <a href="download.html" class="nav-cta">Download</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="container">
+    <div class="hero-sm fade-up">
+      <span class="eyebrow">What Pluma does</span>
+      <h1>One key. Every task.</h1>
+      <p style="font-size:18px;max-width:480px">From rewriting a sentence to controlling your entire desktop — Pluma handles it all without leaving your workflow.</p>
+    </div>
+
+    <div class="feat-section">
+
+      <!-- Ghost Writer -->
+      <div class="feat-row fade-up">
+        <div class="feat-text">
+          <span class="tag">Ghost Writer</span>
+          <h2>Your words, instantly better.</h2>
+          <p>Copy any text, press Alt+P, and Pluma transforms it. No context switching, no new tabs — the rewrite lands back in your clipboard and pastes itself.</p>
+          <ul>
+            <li>Rewrite emails, messages, docs in any tone</li>
+            <li>Summarise long content to 3 bullets</li>
+            <li>Translate to any language on the fly</li>
+            <li>Generate code docs and comments</li>
+          </ul>
+        </div>
+        <div class="feat-visual">
+          <div class="dim"># clipboard contains a rough draft…</div>
+          <div class="cmd">› /polite</div>
+          <br/>
+          <div class="out">Hi Sarah,</div>
+          <div class="out">Thank you for your message. I'd be</div>
+          <div class="out">happy to connect Thursday at 3pm.</div>
+          <br/>
+          <div class="dim">✓ Pasted to cursor position</div>
+        </div>
+      </div>
+
+      <!-- Computer Use -->
+      <div class="feat-row reverse fade-up">
+        <div class="feat-text">
+          <span class="tag">Computer Use</span>
+          <h2>It can see your screen and act on it.</h2>
+          <p>Pluma takes a screenshot, identifies what's visible, and uses mouse clicks and keyboard input to complete multi-step UI tasks — just like a person would.</p>
+          <ul>
+            <li>Opens Chrome and browses websites</li>
+            <li>Clicks buttons, fills forms, navigates apps</li>
+            <li>Shows a targeting reticle at every click</li>
+            <li>Takes verification screenshots mid-task</li>
+          </ul>
+        </div>
+        <div class="feat-visual">
+          <div class="cmd">open my calendar and schedule a</div>
+          <div class="cmd">meeting with Alex for tomorrow 3pm</div>
+          <br/>
+          <div class="dim">⊙ Screenshot taken</div>
+          <div class="dim">⊙ Clicked Chrome in taskbar</div>
+          <div class="dim">⊙ Navigated to calendar.google.com</div>
+          <div class="dim">⊙ Clicked "New event" → filled fields</div>
+          <div class="out">Done — meeting created for 3pm.</div>
+        </div>
+      </div>
+
+      <!-- Memory -->
+      <div class="feat-row fade-up">
+        <div class="feat-text">
+          <span class="tag">RAG Memory</span>
+          <h2>Remembers what you've told it.</h2>
+          <p>Every conversation is indexed into a local SQLite full-text search database. Pluma can recall past context, tasks, and preferences — no cloud, no syncing.</p>
+          <ul>
+            <li>Persistent across sessions (resets at midnight)</li>
+            <li>Searches with BM25 full-text ranking</li>
+            <li>Agent uses recall() to surface relevant context</li>
+            <li>100% local — never leaves your machine</li>
+          </ul>
+        </div>
+        <div class="feat-visual">
+          <div class="cmd">what was the project I was working</div>
+          <div class="cmd">on last time?</div>
+          <br/>
+          <div class="dim">⊙ Searching memory…</div>
+          <br/>
+          <div class="out">You were building the Pluma landing</div>
+          <div class="out">page — specifically the features</div>
+          <div class="out">section and nav layout.</div>
+        </div>
+      </div>
+
+      <!-- Terminal -->
+      <div class="feat-row reverse fade-up">
+        <div class="feat-text">
+          <span class="tag">Terminal Agent</span>
+          <h2>PowerShell in plain English.</h2>
+          <p>Ask Pluma to run commands, read files, write scripts, or list directories. Dangerous commands (format, shutdown, mass delete) are blocked by default.</p>
+          <ul>
+            <li>Run any PowerShell command naturally</li>
+            <li>Read and write files by name or path</li>
+            <li>List directory contents and navigate folders</li>
+            <li>Blocked: format, shutdown, diskpart, rm -rf equiv.</li>
+          </ul>
+        </div>
+        <div class="feat-visual">
+          <div class="cmd">find all .log files in C:\Users\me</div>
+          <div class="cmd">and show me the biggest ones</div>
+          <br/>
+          <div class="dim">⊙ run_terminal: Get-ChildItem…</div>
+          <br/>
+          <div class="out">app_2024-11.log    — 48 MB</div>
+          <div class="out">debug_trace.log    — 31 MB</div>
+          <div class="out">install_errors.log — 12 MB</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Slash commands -->
+    <div style="padding-bottom:100px">
+      <span class="eyebrow">Slash Commands</span>
+      <h2>Instant one-shot transforms.</h2>
+      <p style="margin-top:12px">These run against your clipboard content. Type the command, press Enter — result is pasted immediately.</p>
+      <div class="cmd-grid">
+        <div class="cmd-card"><div class="name">/polite</div><div class="desc">Rewrite as professional and warm</div></div>
+        <div class="cmd-card"><div class="name">/concise</div><div class="desc">Remove fluff, shorten significantly</div></div>
+        <div class="cmd-card"><div class="name">/tldr</div><div class="desc">3-bullet summary of any content</div></div>
+        <div class="cmd-card"><div class="name">/bash</div><div class="desc">Translate to PowerShell command</div></div>
+        <div class="cmd-card"><div class="name">/regex</div><div class="desc">Convert description to regex pattern</div></div>
+        <div class="cmd-card"><div class="name">/explain</div><div class="desc">Explain code or text simply</div></div>
+        <div class="cmd-card"><div class="name">/doc</div><div class="desc">Generate docstrings / comments</div></div>
+        <div class="cmd-card"><div class="name">/translate [lang]</div><div class="desc">Translate to any language</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;width:100%">
+      <span class="footer-logo">Pluma</span>
+      <nav class="footer-links">
+        <a href="features.html">Features</a>
+        <a href="docs.html">Docs</a>
+        <a href="about.html">About</a>
+        <a href="download.html">Download</a>
+      </nav>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

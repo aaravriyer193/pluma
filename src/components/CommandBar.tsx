@@ -39,7 +39,7 @@ export default function CommandBar({ value, onChange, onSubmit, onTabExpand, onO
       />
 
       <div className="bar-right">
-        {isLoading ? <div className="spinner" /> : (
+        {isLoading ? <div className="spinner"><span /></div> : (
           <>
             <button className={`icon-btn ${isWhisperOpen ? "on" : ""}`} onClick={onTabExpand} title="Chat (Tab)">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

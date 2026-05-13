@@ -40,7 +40,7 @@ export interface ToolCallResponse {
   content: string | null;
 }
 
-export const DEFAULT_MODEL = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free";
+export const DEFAULT_MODEL = "xiaomi/mimo-v2.5";
 
 // Non-streaming call that returns tool_calls if present
 export async function callWithTools(
@@ -75,19 +75,42 @@ export async function callWithTools(
   const content: string | null = msg?.content ?? null;
   const tool_calls: ToolCall[] = msg?.tool_calls ?? [];
 
-  // Fallback: parse <tool_call> tags from content if no native tool_calls
+  // Fallback: parse tool calls from content if model doesn't use native format
   if (tool_calls.length === 0 && content) {
-    const regex = /<tool_call>([\s\S]*?)<\/tool_call>/g;
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(content)) !== null) {
+    const blockRe = /<tool_call>([\s\S]*?)<\/tool_call>/g;
+    let block: RegExpExecArray | null;
+    while ((block = blockRe.exec(content)) !== null) {
+      const inner = block[1].trim();
+
+      // Format A: JSON object  {"name":"...", "args":{...}}
       try {
-        const parsed = JSON.parse(match[1].trim());
+        const p = JSON.parse(inner);
+        if (p.name) {
+          tool_calls.push({
+            id: `tc_${Math.random().toString(36).slice(2)}`,
+            type: "function",
+            function: { name: p.name, arguments: JSON.stringify(p.args ?? p.arguments ?? p.parameters ?? {}) },
+          });
+          continue;
+        }
+      } catch { /* not JSON */ }
+
+      // Format B: <function=name> <parameter=key>value</parameter> </function>
+      const fnMatch = inner.match(/<function=(\w+)>/);
+      if (fnMatch) {
+        const name = fnMatch[1];
+        const args: Record<string, string> = {};
+        const paramRe = /<parameter=(\w+)>([\s\S]*?)<\/parameter>/g;
+        let pm: RegExpExecArray | null;
+        while ((pm = paramRe.exec(inner)) !== null) {
+          args[pm[1]] = pm[2].trim();
+        }
         tool_calls.push({
           id: `tc_${Math.random().toString(36).slice(2)}`,
           type: "function",
-          function: { name: parsed.name, arguments: JSON.stringify(parsed.args ?? parsed.arguments ?? {}) },
+          function: { name, arguments: JSON.stringify(args) },
         });
-      } catch { /* skip malformed */ }
+      }
     }
   }
 

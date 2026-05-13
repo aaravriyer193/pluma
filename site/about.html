@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>About — Pluma</title>
+  <meta name="description" content="Why Pluma exists — the story, the vision, and what's next."/>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .about-hero { padding: 100px 0 72px; }
+    .about-hero h1 { max-width: 600px; margin-bottom: 24px; }
+    .about-hero p { font-size: 18px; max-width: 540px; line-height: 1.7; }
+
+    .prose { max-width: 620px; }
+    .prose h2 { font-size: 22px; margin: 56px 0 14px; }
+    .prose p { font-size: 15px; line-height: 1.75; margin-bottom: 18px; }
+    .prose p strong { color: var(--text); font-weight: 500; }
+
+    .pull-quote {
+      border-left: 2px solid rgba(255,255,255,0.12);
+      padding: 4px 0 4px 24px; margin: 40px 0;
+      font-size: 20px; font-weight: 300; color: var(--dim);
+      letter-spacing: -0.015em; line-height: 1.5;
+    }
+    .pull-quote strong { color: var(--text); font-weight: 500; }
+
+    .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 12px; margin: 28px 0 56px; }
+    .val-card { background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 12px; padding: 22px 22px; }
+    .val-card h3 { font-size: 14px; margin-bottom: 7px; }
+    .val-card p { font-size: 13px; }
+
+    .stack-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0 48px; }
+    .stack-item { display: flex; align-items: center; gap: 14px; font-size: 14px; color: var(--dim); }
+    .stack-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); flex-shrink: 0; }
+    .stack-item strong { color: var(--text); font-weight: 500; min-width: 120px; }
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <svg viewBox="0 0 512 512" fill="currentColor"><path d="M467.14 44.84c-62.55-62.48-161.67-64.78-252.28 25.73-78.61 78.52-60.98 60.92-85.75 85.66-60.46 60.39-70.39 150.83-63.64 211.17l178.44-178.25c6.26-6.25 16.4-6.25 22.65 0s6.25 16.38 0 22.63L7.04 471.03c-9.38 9.37-9.38 24.57 0 33.94 9.38 9.37 24.6 9.37 33.98 0l66.1-66.03C159.42 454.65 279 457.11 353.95 384h-98.19l147.57-49.14c49.99-49.93 36.38-36.18 46.31-46.86h-97.78l131.54-43.8c45.44-74.46 34.31-148.84-16.26-199.36z"/></svg>
+    Pluma
+  </a>
+  <div class="nav-links">
+    <a href="features.html">Features</a>
+    <a href="docs.html">Docs</a>
+    <a href="about.html" class="active">About</a>
+    <a href="download.html" class="nav-cta">Download</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="container">
+
+    <div class="about-hero fade-up">
+      <span class="eyebrow">The story</span>
+      <h1>Built for the copilot Windows promised and never shipped.</h1>
+      <p>Pluma is what happens when you get tired of waiting for an AI that actually works on your desktop.</p>
+    </div>
+
+    <div class="prose fade-up fade-up-1">
+
+      <h2>Why this exists</h2>
+      <p>Microsoft announced Copilot. It was supposed to be everywhere — in your taskbar, in your apps, understanding your screen. What shipped was a chatbox that opens a browser tab.</p>
+      <p>Meanwhile, the real work still happens across dozens of apps, clipboards, terminals, and browser tabs. Nobody built a tool that <strong>actually lives between those things</strong> — not inside any one of them, but above all of them.</p>
+      <p>Pluma is that tool. One keystroke. Transparent overlay. Sees your screen, reads your clipboard, runs commands, browses the web, and remembers what you've said. Then gets out of the way.</p>
+
+      <div class="pull-quote">"The best interface is the one that <strong>disappears</strong> the moment you don't need it."</div>
+
+      <h2>Design principles</h2>
+    </div>
+
+    <div class="values-grid fade-up fade-up-2">
+      <div class="val-card">
+        <h3>Zero chrome</h3>
+        <p>No persistent window. No dock icon. No notification badges. Press Alt+P — it's there. Let go — it's gone.</p>
+      </div>
+      <div class="val-card">
+        <h3>Local first</h3>
+        <p>Memory lives in SQLite on your machine. API key in Windows Credential Manager. Nothing phoned home except your AI request.</p>
+      </div>
+      <div class="val-card">
+        <h3>Actually autonomous</h3>
+        <p>Not a chatbot that tells you what to click. An agent that takes the screenshot, finds the button, and clicks it for you.</p>
+      </div>
+      <div class="val-card">
+        <h3>Writer's instinct</h3>
+        <p>Ghost-writing is a first-class feature, not an afterthought. Pluma understands that most AI use is editing, not creating from scratch.</p>
+      </div>
+    </div>
+
+    <div class="prose fade-up fade-up-2">
+
+      <h2>The stack</h2>
+      <p>Pluma is built on Tauri v2 — a Rust + WebView framework that produces tiny, fast, native Windows apps. The UI is React + TypeScript. No Electron, no 200MB runtime.</p>
+    </div>
+
+    <div class="stack-list fade-up fade-up-3">
+      <div class="stack-item"><span class="stack-dot"></span><strong>Tauri v2 + Rust</strong><span>Native Windows app, global shortcuts, tray, multi-window</span></div>
+      <div class="stack-item"><span class="stack-dot"></span><strong>React + TypeScript</strong><span>Transparent overlay UI, streaming markdown rendering</span></div>
+      <div class="stack-item"><span class="stack-dot"></span><strong>OpenRouter API</strong><span>Access to any model — swap in one settings change</span></div>
+      <div class="stack-item"><span class="stack-dot"></span><strong>enigo</strong><span>Cross-platform mouse and keyboard control</span></div>
+      <div class="stack-item"><span class="stack-dot"></span><strong>xcap</strong><span>Screen capture for computer-use vision</span></div>
+      <div class="stack-item"><span class="stack-dot"></span><strong>SQLite FTS5</strong><span>Local RAG memory with BM25 full-text search</span></div>
+      <div class="stack-item"><span class="stack-dot"></span><strong>Windows Credential Manager</strong><span>Secure API key storage via keyring</span></div>
+    </div>
+
+    <div class="prose fade-up fade-up-3">
+      <h2>What's next</h2>
+      <p>Pluma is v0.1. The agent is capable but rough. The memory is keyword-based, not semantic. The UI is minimal by design but has room to breathe.</p>
+      <p>What's planned: <strong>voice input</strong>, <strong>scheduled tasks</strong> ("remind me at 9am"), <strong>vector embeddings</strong> for smarter memory, and a <strong>plugin system</strong> so you can add your own slash commands and tools.</p>
+      <p>The repo will be public soon. Until then — use it, break it, tell me what's wrong.</p>
+    </div>
+
+    <div style="height: 80px;"></div>
+  </div>
+
+  <footer class="footer">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;width:100%">
+      <span class="footer-logo">Pluma</span>
+      <nav class="footer-links">
+        <a href="features.html">Features</a>
+        <a href="docs.html">Docs</a>
+        <a href="about.html">About</a>
+        <a href="download.html">Download</a>
+      </nav>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

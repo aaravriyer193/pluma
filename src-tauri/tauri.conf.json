@@ -29,10 +29,26 @@
         "focus": true
       },
       {
+        "label": "cursor",
+        "title": "",
+        "width": 1920,
+        "height": 1080,
+        "x": 0,
+        "y": 0,
+        "decorations": false,
+        "transparent": true,
+        "visible": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "shadow": false,
+        "focus": false
+      },
+      {
         "label": "widget",
         "title": "",
         "width": 340,
-        "height": 56,
+        "height": 80,
         "decorations": false,
         "transparent": true,
         "visible": false,

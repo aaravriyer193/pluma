@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
@@ -6,6 +6,7 @@ import CommandBar from "./components/CommandBar";
 import WhisperWindow, { WhisperMessage, loadSession, saveSession, scheduleMidnightReset } from "./components/WhisperWindow";
 import Settings from "./components/Settings";
 import TaskWidget from "./components/TaskWidget";
+import CursorIndicator from "./components/CursorIndicator";
 import { parseCommand, buildMessages, GHOST_CHAT } from "./lib/commands";
 import { streamCompletion, DEFAULT_MODEL, ChatMessage } from "./lib/openrouter";
 import { runAgent, isAgentQuery, AgentStep } from "./lib/agent";
@@ -17,14 +18,9 @@ const H_WHISPER = 450;
 const H_SETTINGS = 300;
 
 export default function App() {
-  const [isWidget, setIsWidget] = useState(false);
-
-  useEffect(() => {
-    const w = getCurrentWebviewWindow();
-    setIsWidget(w.label === "widget");
-  }, []);
-
-  if (isWidget) return <TaskWidget />;
+  const label = getCurrentWebviewWindow().label;
+  if (label === "cursor") return <CursorIndicator />;
+  if (label === "widget") return <TaskWidget />;
   return <MainApp />;
 }
 
@@ -279,7 +275,7 @@ function MainApp() {
       {toast && <div className="toast">{toast}</div>}
       {agentRunning && !whisperOpen && (
         <div className="agent-indicator">
-          <div className="spinner" style={{ width: 10, height: 10 }} />
+          <div className="spinner"><span /></div>
           Agent running
         </div>
       )}

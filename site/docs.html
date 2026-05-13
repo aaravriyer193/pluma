@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Docs — Pluma</title>
+  <meta name="description" content="Pluma reference — keyboard shortcuts, slash commands, agent tools, and settings."/>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .docs-layout { display: grid; grid-template-columns: 200px 1fr; gap: 60px; padding: 80px 0 100px; align-items: start; }
+    @media(max-width:720px){ .docs-layout { grid-template-columns: 1fr; } .docs-sidebar { display: none; } }
+
+    .docs-sidebar { position: sticky; top: 80px; }
+    .docs-sidebar a { display: block; font-size: 13px; color: var(--faint); text-decoration: none; padding: 5px 0; transition: color 0.12s; }
+    .docs-sidebar a:hover, .docs-sidebar a.active { color: var(--dim); }
+    .docs-sidebar .section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.18); margin: 18px 0 6px; }
+
+    .docs-content h2 { font-size: 26px; margin-bottom: 8px; padding-top: 60px; }
+    .docs-content h2:first-child { padding-top: 0; }
+    .docs-content > p { margin-bottom: 28px; }
+    .docs-content .divider { margin: 48px 0; }
+
+    table { width: 100%; border-collapse: collapse; margin: 20px 0 32px; }
+    th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--faint); padding: 0 16px 10px 0; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px 11px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13.5px; vertical-align: top; }
+    td:first-child { white-space: nowrap; }
+    td p { font-size: 13.5px; margin: 0; }
+    tr:last-child td { border-bottom: none; }
+
+    .tip {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-left: 3px solid rgba(255,255,255,0.15);
+      border-radius: 0 8px 8px 0; padding: 14px 18px;
+      font-size: 13.5px; color: var(--dim); margin: 20px 0 32px; line-height: 1.6;
+    }
+    .tip strong { color: var(--text); }
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <svg viewBox="0 0 512 512" fill="currentColor"><path d="M467.14 44.84c-62.55-62.48-161.67-64.78-252.28 25.73-78.61 78.52-60.98 60.92-85.75 85.66-60.46 60.39-70.39 150.83-63.64 211.17l178.44-178.25c6.26-6.25 16.4-6.25 22.65 0s6.25 16.38 0 22.63L7.04 471.03c-9.38 9.37-9.38 24.57 0 33.94 9.38 9.37 24.6 9.37 33.98 0l66.1-66.03C159.42 454.65 279 457.11 353.95 384h-98.19l147.57-49.14c49.99-49.93 36.38-36.18 46.31-46.86h-97.78l131.54-43.8c45.44-74.46 34.31-148.84-16.26-199.36z"/></svg>
+    Pluma
+  </a>
+  <div class="nav-links">
+    <a href="features.html">Features</a>
+    <a href="docs.html" class="active">Docs</a>
+    <a href="about.html">About</a>
+    <a href="download.html" class="nav-cta">Download</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="container">
+    <div class="docs-layout">
+
+      <aside class="docs-sidebar">
+        <div class="section-label">Getting started</div>
+        <a href="#shortcuts">Keyboard shortcuts</a>
+        <a href="#interface">Interface</a>
+        <div class="section-label">Writing</div>
+        <a href="#commands">Slash commands</a>
+        <a href="#clipboard">Clipboard context</a>
+        <div class="section-label">Agent</div>
+        <a href="#agent">Triggering agent mode</a>
+        <a href="#tools">Agent tools</a>
+        <a href="#computer-use">Computer use</a>
+        <div class="section-label">Settings</div>
+        <a href="#api">API key</a>
+        <a href="#memory">Memory & sessions</a>
+      </aside>
+
+      <div class="docs-content fade-up">
+
+        <h2 id="shortcuts">Keyboard shortcuts</h2>
+        <table>
+          <tr><th>Shortcut</th><th>Action</th></tr>
+          <tr><td><kbd>Alt+P</kbd></td><td><p>Summon or dismiss Pluma from anywhere</p></td></tr>
+          <tr><td><kbd>Enter</kbd></td><td><p>Submit query or command</p></td></tr>
+          <tr><td><kbd>Tab</kbd></td><td><p>Toggle the chat panel (Whisper) open/closed</p></td></tr>
+          <tr><td><kbd>Escape</kbd></td><td><p>Dismiss window (keeps agent running if active)</p></td></tr>
+          <tr><td><kbd>Shift+Enter</kbd></td><td><p>New line in chat input</p></td></tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <h2 id="interface">Interface</h2>
+        <p>Pluma has three layers:</p>
+        <table>
+          <tr><th>Layer</th><th>Description</th></tr>
+          <tr><td>Command bar</td><td><p>The main input — always visible when open. Type queries or slash commands here.</p></td></tr>
+          <tr><td>Whisper panel</td><td><p>Full chat history. Opens with Tab or when a chat response arrives. Has its own send field for follow-ups.</p></td></tr>
+          <tr><td>Settings</td><td><p>Click the ⚙ icon to set your OpenRouter API key and model.</p></td></tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <h2 id="commands">Slash commands</h2>
+        <p>Type a slash command in the command bar. All commands act on clipboard content unless you provide a direct argument.</p>
+        <table>
+          <tr><th>Command</th><th>What it does</th></tr>
+          <tr><td><kbd>/polite</kbd></td><td><p>Rewrites clipboard text as professional and warm</p></td></tr>
+          <tr><td><kbd>/concise</kbd></td><td><p>Removes fluff, shortens while preserving meaning</p></td></tr>
+          <tr><td><kbd>/tldr</kbd></td><td><p>Summarises to exactly 3 bullet points</p></td></tr>
+          <tr><td><kbd>/bash</kbd></td><td><p>Translates description to a PowerShell command</p></td></tr>
+          <tr><td><kbd>/regex</kbd></td><td><p>Converts plain English to a regex pattern</p></td></tr>
+          <tr><td><kbd>/explain</kbd></td><td><p>Explains code or text in simple terms</p></td></tr>
+          <tr><td><kbd>/doc</kbd></td><td><p>Generates docstrings/comments for code</p></td></tr>
+          <tr><td><kbd>/translate [lang]</kbd></td><td><p>Translates to the specified language (default: English)</p></td></tr>
+        </table>
+
+        <div class="tip"><strong>Copy/Chat mode:</strong> The AI decides whether to paste the result directly to your cursor (<strong>[COPY]</strong>) or open a chat panel (<strong>[CHAT]</strong>). Transforms paste; questions chat.</div>
+
+        <div class="divider"></div>
+
+        <h2 id="clipboard">Clipboard context</h2>
+        <p>Every time Pluma opens, it reads your clipboard. That content is shown as a "ctx" strip in the chat panel and automatically included in all requests as context. You don't need to paste or mention it.</p>
+
+        <div class="divider"></div>
+
+        <h2 id="agent">Triggering agent mode</h2>
+        <p>Agent mode activates automatically when your query contains action keywords:</p>
+        <div class="code-block">open · click · search · find file · run · go to · browse · navigate
+read file · list files · my desktop · my documents · install · download
+move · copy · delete · rename · create file · write to · automate</div>
+        <p style="margin-top:16px">You can also trigger it explicitly from the Whisper chat panel — same keywords apply.</p>
+
+        <div class="divider"></div>
+
+        <h2 id="tools">Agent tools</h2>
+        <table>
+          <tr><th>Tool</th><th>Description</th></tr>
+          <tr><td><kbd>take_screenshot</kbd></td><td><p>Captures the screen. Agent calls this before clicking anything.</p></td></tr>
+          <tr><td><kbd>mouse_click(x,y)</kbd></td><td><p>Clicks at absolute pixel coordinates. Shows targeting reticle.</p></td></tr>
+          <tr><td><kbd>double_click(x,y)</kbd></td><td><p>Double-click at coordinates.</p></td></tr>
+          <tr><td><kbd>type_text(text)</kbd></td><td><p>Types at the current cursor position.</p></td></tr>
+          <tr><td><kbd>key_press(key)</kbd></td><td><p>Presses a key or combo: enter, ctrl+c, ctrl+v, alt+tab, win, f5…</p></td></tr>
+          <tr><td><kbd>scroll(x,y,amount)</kbd></td><td><p>Scrolls at coordinates. Positive = down.</p></td></tr>
+          <tr><td><kbd>run_terminal(cmd)</kbd></td><td><p>Runs a PowerShell command. Returns stdout, stderr, exit code.</p></td></tr>
+          <tr><td><kbd>read_file(path)</kbd></td><td><p>Returns full text content of a file.</p></td></tr>
+          <tr><td><kbd>write_file(path, content)</kbd></td><td><p>Creates or overwrites a file.</p></td></tr>
+          <tr><td><kbd>list_directory(path)</kbd></td><td><p>Lists files and folders at the given path.</p></td></tr>
+          <tr><td><kbd>recall(query)</kbd></td><td><p>Searches conversation memory for relevant past context.</p></td></tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <h2 id="computer-use">Computer use</h2>
+        <p>When performing UI tasks, the agent always takes a screenshot first, identifies pixel coordinates of the target element, then acts. A cyan targeting reticle appears at every click location.</p>
+        <div class="tip"><strong>For web tasks</strong>, Pluma opens Chrome using <code>start chrome "url"</code> via PowerShell. Make sure Chrome is installed.</div>
+
+        <div class="divider"></div>
+
+        <h2 id="api">API key</h2>
+        <p>Pluma uses <a href="https://openrouter.ai" style="color:var(--dim)">OpenRouter</a> for all AI calls. Get a free key at <a href="https://openrouter.ai/keys" style="color:var(--dim)">openrouter.ai/keys</a> — many models are free-tier. Your key is stored in the OS keychain (Windows Credential Manager), never in plain text.</p>
+
+        <div class="divider"></div>
+
+        <h2 id="memory">Memory &amp; sessions</h2>
+        <p>All conversations are saved to a local SQLite database in your AppData folder. The session resets automatically at midnight each day. The agent can search this memory using the <kbd>recall</kbd> tool.</p>
+        <div class="tip"><strong>To clear manually:</strong> press Escape to dismiss, then delete <code>%APPDATA%\com.pluma.app\pluma.db</code>.</div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;width:100%">
+      <span class="footer-logo">Pluma</span>
+      <nav class="footer-links">
+        <a href="features.html">Features</a>
+        <a href="docs.html">Docs</a>
+        <a href="about.html">About</a>
+        <a href="download.html">Download</a>
+      </nav>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

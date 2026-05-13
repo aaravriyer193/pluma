@@ -91,7 +91,7 @@ export default function WhisperWindow({ messages, clipboardText, isLoading, onSe
           placeholder="Ask anything… (Shift+Enter for newline)" rows={1} disabled={isLoading} />
         <button className="send-btn" onClick={submit} disabled={!draft.trim() || isLoading}>
           {isLoading
-            ? <div className="spinner" style={{ width: 12, height: 12 }} />
+            ? <div className="spinner"><span /></div>
             : <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
           }
         </button>

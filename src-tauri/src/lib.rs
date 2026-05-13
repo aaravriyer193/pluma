@@ -158,7 +158,22 @@ async fn list_directory(path: String) -> Result<Vec<serde_json::Value>, String> 
 // ── Computer use ──────────────────────────────────────────────────────────────
 
 #[tauri::command]
-async fn mouse_click(x: i32, y: i32, button: Option<String>) -> Result<(), String> {
+fn get_screen_size() -> serde_json::Value {
+    if let Ok(monitors) = xcap::Monitor::all() {
+        if let Some(m) = monitors.first() {
+            return serde_json::json!({"width": m.width(), "height": m.height()});
+        }
+    }
+    serde_json::json!({"width": 1920, "height": 1080})
+}
+
+#[tauri::command]
+async fn mouse_click(app: tauri::AppHandle, x: i32, y: i32, button: Option<String>) -> Result<(), String> {
+    // Re-assert topmost so cursor overlay stays above other always-on-top windows
+    if let Some(cursor_win) = app.get_webview_window("cursor") {
+        let _ = cursor_win.set_always_on_top(true);
+    }
+    let _ = app.emit("click-at", serde_json::json!({"x": x, "y": y}));
     tokio::time::sleep(std::time::Duration::from_millis(80)).await;
     let mut enigo = Enigo::new(&EnigoSettings::default()).map_err(|e| e.to_string())?;
     enigo.move_mouse(x, y, Coordinate::Abs).map_err(|e| e.to_string())?;
@@ -191,26 +206,58 @@ async fn type_text(text: String) -> Result<(), String> {
     Ok(())
 }
 
+fn parse_key(s: &str) -> Key {
+    match s {
+        "enter" | "return"      => Key::Return,
+        "escape" | "esc"        => Key::Escape,
+        "tab"                   => Key::Tab,
+        "backspace"             => Key::Backspace,
+        "delete"                => Key::Delete,
+        "up"                    => Key::UpArrow,
+        "down"                  => Key::DownArrow,
+        "left"                  => Key::LeftArrow,
+        "right"                 => Key::RightArrow,
+        "home"                  => Key::Home,
+        "end"                   => Key::End,
+        "pageup"                => Key::PageUp,
+        "pagedown"              => Key::PageDown,
+        "space"                 => Key::Unicode(' '),
+        "f1"  => Key::F1,  "f2"  => Key::F2,  "f3"  => Key::F3,  "f4"  => Key::F4,
+        "f5"  => Key::F5,  "f6"  => Key::F6,  "f7"  => Key::F7,  "f8"  => Key::F8,
+        "f9"  => Key::F9,  "f10" => Key::F10, "f11" => Key::F11, "f12" => Key::F12,
+        _                       => Key::Unicode(s.chars().next().unwrap_or(' ')),
+    }
+}
+
 #[tauri::command]
 async fn key_press(key: String) -> Result<(), String> {
     let mut enigo = Enigo::new(&EnigoSettings::default()).map_err(|e| e.to_string())?;
-    let k = match key.to_lowercase().as_str() {
-        "enter" | "return" => Key::Return,
-        "escape" | "esc"   => Key::Escape,
-        "tab"              => Key::Tab,
-        "backspace"        => Key::Backspace,
-        "delete"           => Key::Delete,
-        "up"               => Key::UpArrow,
-        "down"             => Key::DownArrow,
-        "left"             => Key::LeftArrow,
-        "right"            => Key::RightArrow,
-        "home"             => Key::Home,
-        "end"              => Key::End,
-        "pageup"           => Key::PageUp,
-        "pagedown"         => Key::PageDown,
-        _                  => Key::Unicode(key.chars().next().unwrap_or(' ')),
-    };
-    enigo.key(k, Direction::Click).map_err(|e| e.to_string())?;
+    let lo = key.to_lowercase();
+    let parts: Vec<&str> = lo.split('+').map(str::trim).collect();
+
+    if parts.len() > 1 {
+        // Combo: e.g. "ctrl+c", "ctrl+shift+t", "win+d"
+        let mods: Vec<Key> = parts[..parts.len()-1].iter().filter_map(|p| match *p {
+            "ctrl" | "control"               => Some(Key::Control),
+            "alt"                            => Some(Key::Alt),
+            "shift"                          => Some(Key::Shift),
+            "win" | "windows" | "super" | "meta" | "cmd" => Some(Key::Meta),
+            _ => None,
+        }).collect();
+        for m in &mods { enigo.key(*m, Direction::Press).map_err(|e| e.to_string())?; }
+        enigo.key(parse_key(parts[parts.len()-1]), Direction::Click).map_err(|e| e.to_string())?;
+        for m in mods.iter().rev() { enigo.key(*m, Direction::Release).map_err(|e| e.to_string())?; }
+    } else {
+        // Special modifier-only keys
+        let k = match lo.as_str() {
+            "ctrl" | "control"               => Key::Control,
+            "alt"                            => Key::Alt,
+            "shift"                          => Key::Shift,
+            "win" | "windows" | "super" | "meta" => Key::Meta,
+            other                            => parse_key(other),
+        };
+        enigo.key(k, Direction::Click).map_err(|e| e.to_string())?;
+    }
     Ok(())
 }
 
@@ -258,6 +305,16 @@ fn rag_query(state: tauri::State<'_, DbState>, query: String, limit: Option<usiz
 #[tauri::command]
 async fn show_widget(app: tauri::AppHandle, task: String) -> Result<(), String> {
     if let Some(w) = app.get_webview_window("widget") {
+        // Position bottom-right of primary monitor
+        if let Ok(Some(monitor)) = w.primary_monitor() {
+            let sz = monitor.size();
+            let scale = monitor.scale_factor();
+            let w_px = (300.0 * scale) as u32;
+            let h_px = (52.0 * scale) as u32;
+            let x = sz.width.saturating_sub(w_px + (20.0 * scale) as u32) as i32;
+            let y = sz.height.saturating_sub(h_px + (64.0 * scale) as u32) as i32;
+            let _ = w.set_position(tauri::PhysicalPosition::new(x, y));
+        }
         let _ = w.emit("widget-task", &task);
         let _ = w.show();
     }
@@ -293,6 +350,17 @@ pub fn run() {
                 "CREATE VIRTUAL TABLE IF NOT EXISTS memory USING fts5(content, source, ts UNINDEXED);"
             ).expect("Failed to create memory table");
             app.manage(DbState(Mutex::new(conn)));
+
+            // ── Cursor overlay (full-screen, transparent, always-on-top) ──
+            if let Some(cursor_win) = app.get_webview_window("cursor") {
+                if let Ok(Some(monitor)) = cursor_win.primary_monitor() {
+                    let sz = monitor.size();
+                    let _ = cursor_win.set_size(tauri::PhysicalSize::new(sz.width, sz.height));
+                    let _ = cursor_win.set_position(tauri::PhysicalPosition::new(0i32, 0i32));
+                }
+                let _ = cursor_win.set_ignore_cursor_events(true);
+                let _ = cursor_win.show();
+            }
 
             // ── Tray ───────────────────────────────────────────────────────
             let show_i = MenuItem::with_id(app, "show", "Open Pluma  (Alt+P)", true, None::<&str>)?;
@@ -369,6 +437,7 @@ pub fn run() {
             rag_query,
             show_widget,
             hide_widget,
+            get_screen_size,
         ])
         .run(tauri::generate_context!())
         .expect("error running Pluma");

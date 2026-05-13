@@ -107,8 +107,39 @@ const TOOLS: ToolDefinition[] = [
     type: "function",
     function: {
       name: "take_screenshot",
-      description: "Capture the current screen and return it as a base64 PNG for inspection.",
+      description: "Capture the current screen. Call this BEFORE clicking anything to see exact pixel positions.",
       parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "double_click",
+      description: "Double-click at absolute screen coordinates.",
+      parameters: {
+        type: "object",
+        properties: {
+          x: { type: "number", description: "Absolute pixel X" },
+          y: { type: "number", description: "Absolute pixel Y" },
+        },
+        required: ["x", "y"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "scroll",
+      description: "Scroll at screen coordinates. amount is positive=down, negative=up.",
+      parameters: {
+        type: "object",
+        properties: {
+          x: { type: "number" },
+          y: { type: "number" },
+          amount: { type: "number", description: "Lines to scroll, positive=down" },
+        },
+        required: ["x", "y", "amount"],
+      },
     },
   },
   {
@@ -126,6 +157,16 @@ const TOOLS: ToolDefinition[] = [
     },
   },
 ];
+
+let _screenW = 1920;
+let _screenH = 1080;
+async function getScreenSize(): Promise<{ width: number; height: number }> {
+  try {
+    return await invoke<{ width: number; height: number }>("get_screen_size");
+  } catch {
+    return { width: 1920, height: 1080 };
+  }
+}
 
 async function executeTool(name: string, args: Record<string, unknown>): Promise<string> {
   try {
@@ -147,9 +188,36 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
         );
         return entries.map(e => `${e.is_dir ? "[dir]" : "[file]"} ${e.name}${e.is_dir ? "" : ` (${e.size}b)`}`).join("\n");
       }
-      case "mouse_click":
-        await invoke("mouse_click", { x: args.x, y: args.y, button: args.button ?? "left" });
-        return "Clicked.";
+      // "click" is an alias some models use — normalize to mouse_click
+      case "click":
+      case "mouse_click": {
+        let x = Number(args.x ?? 0);
+        let y = Number(args.y ?? 0);
+        // Convert normalized 0-1 coords to absolute pixels
+        if (x > 0 && x <= 1.0 && y > 0 && y <= 1.0) {
+          const sz = await getScreenSize();
+          _screenW = sz.width; _screenH = sz.height;
+          x = Math.round(x * _screenW);
+          y = Math.round(y * _screenH);
+        }
+        await invoke("mouse_click", { x: Math.round(x), y: Math.round(y), button: args.button ?? "left" });
+        return `Clicked at (${Math.round(x)}, ${Math.round(y)}).`;
+      }
+      case "double_click": {
+        let x = Number(args.x ?? 0);
+        let y = Number(args.y ?? 0);
+        if (x > 0 && x <= 1.0 && y > 0 && y <= 1.0) {
+          const sz = await getScreenSize();
+          x = Math.round(x * sz.width); y = Math.round(y * sz.height);
+        }
+        await invoke("mouse_double_click", { x: Math.round(x), y: Math.round(y) });
+        return `Double-clicked at (${Math.round(x)}, ${Math.round(y)}).`;
+      }
+      case "scroll":
+      case "mouse_scroll": {
+        await invoke("mouse_scroll", { x: Number(args.x ?? 0), y: Number(args.y ?? 0), amount: Number(args.amount ?? 3) });
+        return "Scrolled.";
+      }
       case "type_text":
         await invoke("type_text", { text: args.text as string });
         return "Typed.";
@@ -200,7 +268,7 @@ export async function runAgent(
   messages.push({ role: "user", content: userMessage });
 
   let iterations = 0;
-  const MAX_ITERATIONS = 12;
+  const MAX_ITERATIONS = 1000;
 
   while (iterations++ < MAX_ITERATIONS) {
     if (signal.aborted) throw new DOMException("Aborted", "AbortError");
@@ -208,17 +276,17 @@ export async function runAgent(
     const { tool_calls, content } = await callWithTools(apiKey, DEFAULT_MODEL, messages, TOOLS, signal);
 
     if (!tool_calls.length) {
-      // Final response — stream it
-      const finalMsgs: ChatMessage[] = [...messages, { role: "assistant", content: content ?? "" }];
-      // Stream the final answer from scratch for smooth UX
+      // Strip any raw <tool_call> XML the model leaked into content
+      const cleanContent = (content ?? "").replace(/<tool_call>[\s\S]*?<\/tool_call>/g, "").trim();
+      if (cleanContent) {
+        onFinalChunk(cleanContent);
+        return cleanContent;
+      }
+      // If nothing left, stream a fresh final answer
       const streamed = await streamCompletion({
-        apiKey,
-        model: DEFAULT_MODEL,
-        messages: finalMsgs.slice(0, -1), // send without the last assistant msg
-        onChunk: onFinalChunk,
-        signal,
+        apiKey, model: DEFAULT_MODEL, messages, onChunk: onFinalChunk, signal,
       });
-      return streamed || content || "";
+      return streamed || "";
     }
 
     // Push assistant message with tool_calls
