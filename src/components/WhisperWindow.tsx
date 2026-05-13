@@ -4,9 +4,10 @@ import remarkGfm from "remark-gfm";
 
 export interface WhisperMessage {
   id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "tool_call" | "tool_result";
   content: string;
   streaming?: boolean;
+  toolName?: string;
 }
 
 interface Props {
@@ -55,17 +56,31 @@ export default function WhisperWindow({ messages, clipboardText, isLoading, onSe
       <div className="messages">
         {messages.length === 0
           ? <div className="msg-empty">Clipboard context loaded — ask anything</div>
-          : messages.map((m) => (
-            <div key={m.id} className={`msg ${m.role}`}>
-              <span className="msg-role">{m.role === "user" ? "you" : "pluma"}</span>
-              <div className="msg-body">
-                {m.role === "assistant"
-                  ? <><ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>{m.streaming && <span className="cursor" />}</>
-                  : <>{m.content}{m.streaming && <span className="cursor" />}</>
-                }
+          : messages.map((m) => {
+            if (m.role === "tool_call") return (
+              <div key={m.id} className="msg-tool-call">
+                <span className="tool-icon">⚙</span>
+                <span className="tool-name">{m.toolName}</span>
+                <span className="tool-args">{m.content}</span>
               </div>
-            </div>
-          ))
+            );
+            if (m.role === "tool_result") return (
+              <div key={m.id} className="msg-tool-result">
+                <span className="tool-result-text">{m.content}</span>
+              </div>
+            );
+            return (
+              <div key={m.id} className={`msg ${m.role}`}>
+                <span className="msg-role">{m.role === "user" ? "you" : "pluma"}</span>
+                <div className="msg-body">
+                  {m.role === "assistant"
+                    ? <><ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>{m.streaming && <span className="cursor" />}</>
+                    : <>{m.content}{m.streaming && <span className="cursor" />}</>
+                  }
+                </div>
+              </div>
+            );
+          })
         }
         <div ref={endRef} />
       </div>

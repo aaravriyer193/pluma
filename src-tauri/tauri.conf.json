@@ -27,6 +27,22 @@
         "resizable": false,
         "shadow": false,
         "focus": true
+      },
+      {
+        "label": "widget",
+        "title": "",
+        "width": 340,
+        "height": 56,
+        "decorations": false,
+        "transparent": true,
+        "visible": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "shadow": false,
+        "focus": false,
+        "x": 40,
+        "y": 40
       }
     ],
     "trayIcon": {

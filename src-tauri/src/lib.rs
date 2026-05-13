@@ -1,4 +1,6 @@
-use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
+use enigo::{Direction, Enigo, Key, Keyboard, Mouse, Button, Coordinate, Axis, Settings as EnigoSettings};
+use rusqlite::{Connection, params};
+use std::sync::Mutex;
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -6,7 +8,20 @@ use tauri::{
 };
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
-// ── Commands ──────────────────────────────────────────────────────────────────
+pub struct DbState(pub Mutex<Connection>);
+
+// ── Quick helpers ─────────────────────────────────────────────────────────────
+
+fn blocked_cmd(cmd: &str) -> Option<&'static str> {
+    let lo = cmd.to_lowercase();
+    let blocked = [
+        "format ", "diskpart", "shutdown /s", "shutdown /r", "del /f /s /q c:\\",
+        "rd /s /q c:\\", "rmdir /s /q c:\\", "reg delete hklm", "bcdedit",
+    ];
+    blocked.iter().find(|b| lo.contains(*b)).copied()
+}
+
+// ── Existing commands ─────────────────────────────────────────────────────────
 
 #[tauri::command]
 async fn hide_window(window: tauri::Window) -> Result<(), String> {
@@ -49,32 +64,26 @@ async fn write_clipboard(app: tauri::AppHandle, text: String) -> Result<(), Stri
     app.clipboard().write_text(text).map_err(|e| e.to_string())
 }
 
-// Capture primary monitor as base64 PNG
 #[tauri::command]
 async fn take_screenshot() -> Result<String, String> {
     use base64::Engine;
     use image::ImageEncoder;
-
     let monitors = xcap::Monitor::all().map_err(|e| e.to_string())?;
     let monitor = monitors.into_iter().next().ok_or("No monitor found")?;
     let img = monitor.capture_image().map_err(|e| e.to_string())?;
-
     let mut png: Vec<u8> = Vec::new();
     let enc = image::codecs::png::PngEncoder::new(&mut png);
     enc.write_image(img.as_raw(), img.width(), img.height(), image::ExtendedColorType::Rgba8)
         .map_err(|e| e.to_string())?;
-
     Ok(base64::engine::general_purpose::STANDARD.encode(&png))
 }
 
-// Write to clipboard, hide, wait, then simulate Ctrl/Cmd+V
 #[tauri::command]
 async fn paste_result(app: tauri::AppHandle, window: tauri::Window, text: String) -> Result<(), String> {
     use tauri_plugin_clipboard_manager::ClipboardExt;
     app.clipboard().write_text(text).map_err(|e| e.to_string())?;
     window.hide().map_err(|e| e.to_string())?;
     tokio::time::sleep(std::time::Duration::from_millis(250)).await;
-
     let mut enigo = Enigo::new(&EnigoSettings::default()).map_err(|e| e.to_string())?;
     #[cfg(target_os = "macos")]
     {
@@ -97,6 +106,172 @@ async fn resize_window(window: tauri::Window, height: u32) -> Result<(), String>
     window.set_size(LogicalSize::new(660_u32, height)).map_err(|e| e.to_string())
 }
 
+// ── Terminal ──────────────────────────────────────────────────────────────────
+
+#[tauri::command]
+async fn execute_terminal(command: String) -> Result<serde_json::Value, String> {
+    if let Some(b) = blocked_cmd(&command) {
+        return Err(format!("Blocked: command contains '{b}'"));
+    }
+    let out = std::process::Command::new("powershell")
+        .args(["-NonInteractive", "-NoProfile", "-Command", &command])
+        .output()
+        .map_err(|e| e.to_string())?;
+    Ok(serde_json::json!({
+        "stdout": String::from_utf8_lossy(&out.stdout).trim().to_string(),
+        "stderr": String::from_utf8_lossy(&out.stderr).trim().to_string(),
+        "exit_code": out.status.code().unwrap_or(-1)
+    }))
+}
+
+// ── File I/O ──────────────────────────────────────────────────────────────────
+
+#[tauri::command]
+async fn read_file_content(path: String) -> Result<String, String> {
+    std::fs::read_to_string(&path).map_err(|e| format!("{path}: {e}"))
+}
+
+#[tauri::command]
+async fn write_file_content(path: String, content: String) -> Result<(), String> {
+    if let Some(parent) = std::path::Path::new(&path).parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    std::fs::write(&path, content).map_err(|e| format!("{path}: {e}"))
+}
+
+#[tauri::command]
+async fn list_directory(path: String) -> Result<Vec<serde_json::Value>, String> {
+    let entries = std::fs::read_dir(&path).map_err(|e| e.to_string())?;
+    let mut out = Vec::new();
+    for entry in entries.flatten() {
+        let meta = entry.metadata().ok();
+        out.push(serde_json::json!({
+            "name": entry.file_name().to_string_lossy(),
+            "path": entry.path().to_string_lossy(),
+            "is_dir": meta.as_ref().map(|m| m.is_dir()).unwrap_or(false),
+            "size": meta.as_ref().map(|m| m.len()).unwrap_or(0),
+        }));
+    }
+    Ok(out)
+}
+
+// ── Computer use ──────────────────────────────────────────────────────────────
+
+#[tauri::command]
+async fn mouse_click(x: i32, y: i32, button: Option<String>) -> Result<(), String> {
+    tokio::time::sleep(std::time::Duration::from_millis(80)).await;
+    let mut enigo = Enigo::new(&EnigoSettings::default()).map_err(|e| e.to_string())?;
+    enigo.move_mouse(x, y, Coordinate::Abs).map_err(|e| e.to_string())?;
+    tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+    let btn = match button.as_deref() {
+        Some("right") => Button::Right,
+        Some("middle") => Button::Middle,
+        _ => Button::Left,
+    };
+    enigo.button(btn, Direction::Click).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn mouse_double_click(x: i32, y: i32) -> Result<(), String> {
+    tokio::time::sleep(std::time::Duration::from_millis(80)).await;
+    let mut enigo = Enigo::new(&EnigoSettings::default()).map_err(|e| e.to_string())?;
+    enigo.move_mouse(x, y, Coordinate::Abs).map_err(|e| e.to_string())?;
+    enigo.button(Button::Left, Direction::Click).map_err(|e| e.to_string())?;
+    tokio::time::sleep(std::time::Duration::from_millis(60)).await;
+    enigo.button(Button::Left, Direction::Click).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn type_text(text: String) -> Result<(), String> {
+    tokio::time::sleep(std::time::Duration::from_millis(80)).await;
+    let mut enigo = Enigo::new(&EnigoSettings::default()).map_err(|e| e.to_string())?;
+    enigo.text(&text).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn key_press(key: String) -> Result<(), String> {
+    let mut enigo = Enigo::new(&EnigoSettings::default()).map_err(|e| e.to_string())?;
+    let k = match key.to_lowercase().as_str() {
+        "enter" | "return" => Key::Return,
+        "escape" | "esc"   => Key::Escape,
+        "tab"              => Key::Tab,
+        "backspace"        => Key::Backspace,
+        "delete"           => Key::Delete,
+        "up"               => Key::UpArrow,
+        "down"             => Key::DownArrow,
+        "left"             => Key::LeftArrow,
+        "right"            => Key::RightArrow,
+        "home"             => Key::Home,
+        "end"              => Key::End,
+        "pageup"           => Key::PageUp,
+        "pagedown"         => Key::PageDown,
+        _                  => Key::Unicode(key.chars().next().unwrap_or(' ')),
+    };
+    enigo.key(k, Direction::Click).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn mouse_scroll(x: i32, y: i32, amount: i32) -> Result<(), String> {
+    let mut enigo = Enigo::new(&EnigoSettings::default()).map_err(|e| e.to_string())?;
+    enigo.move_mouse(x, y, Coordinate::Abs).map_err(|e| e.to_string())?;
+    enigo.scroll(amount, Axis::Vertical).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+// ── RAG memory ────────────────────────────────────────────────────────────────
+
+#[tauri::command]
+fn rag_insert(state: tauri::State<'_, DbState>, content: String, source: String) -> Result<(), String> {
+    let db = state.0.lock().map_err(|e| e.to_string())?;
+    let ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_secs();
+    db.execute(
+        "INSERT INTO memory(content, source, ts) VALUES (?1, ?2, ?3)",
+        params![content, source, ts as i64],
+    ).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn rag_query(state: tauri::State<'_, DbState>, query: String, limit: Option<usize>) -> Result<Vec<serde_json::Value>, String> {
+    let db = state.0.lock().map_err(|e| e.to_string())?;
+    let n = limit.unwrap_or(6) as i64;
+    let mut stmt = db.prepare(
+        "SELECT content, source, ts FROM memory WHERE memory MATCH ?1 ORDER BY rank LIMIT ?2"
+    ).map_err(|e| e.to_string())?;
+    let rows = stmt.query_map(params![query, n], |row| {
+        Ok(serde_json::json!({
+            "content": row.get::<_, String>(0)?,
+            "source":  row.get::<_, String>(1)?,
+            "ts":      row.get::<_, i64>(2)?
+        }))
+    }).map_err(|e| e.to_string())?;
+    rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
+}
+
+// ── Widget window ─────────────────────────────────────────────────────────────
+
+#[tauri::command]
+async fn show_widget(app: tauri::AppHandle, task: String) -> Result<(), String> {
+    if let Some(w) = app.get_webview_window("widget") {
+        let _ = w.emit("widget-task", &task);
+        let _ = w.show();
+    }
+    Ok(())
+}
+
+#[tauri::command]
+async fn hide_widget(app: tauri::AppHandle) -> Result<(), String> {
+    if let Some(w) = app.get_webview_window("widget") {
+        let _ = w.hide();
+    }
+    Ok(())
+}
+
 // ── Entry point ───────────────────────────────────────────────────────────────
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -109,7 +284,17 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
-            // Tray
+            // ── SQLite RAG DB ──────────────────────────────────────────────
+            let data_dir = app.path().app_data_dir().expect("no data dir");
+            std::fs::create_dir_all(&data_dir).ok();
+            let db_path = data_dir.join("pluma.db");
+            let conn = Connection::open(&db_path).expect("Failed to open DB");
+            conn.execute_batch(
+                "CREATE VIRTUAL TABLE IF NOT EXISTS memory USING fts5(content, source, ts UNINDEXED);"
+            ).expect("Failed to create memory table");
+            app.manage(DbState(Mutex::new(conn)));
+
+            // ── Tray ───────────────────────────────────────────────────────
             let show_i = MenuItem::with_id(app, "show", "Open Pluma  (Alt+P)", true, None::<&str>)?;
             let sep = PredefinedMenuItem::separator(app)?;
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
@@ -132,14 +317,14 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            // Global shortcut Alt+P
+            // ── Global shortcut Alt+P ──────────────────────────────────────
             let shortcut = Shortcut::new(Some(Modifiers::ALT), Code::KeyP);
             let handle = app.handle().clone();
             app.global_shortcut().on_shortcut(shortcut, move |_app, _s, event| {
                 if event.state() == ShortcutState::Pressed { toggle_window(&handle); }
             })?;
 
-            // Re-emit clipboard on focus
+            // ── Re-emit clipboard on focus ─────────────────────────────────
             let handle2 = app.handle().clone();
             app.listen("tauri://focus", move |_| {
                 let app = handle2.clone();
@@ -171,6 +356,19 @@ pub fn run() {
             take_screenshot,
             paste_result,
             resize_window,
+            execute_terminal,
+            read_file_content,
+            write_file_content,
+            list_directory,
+            mouse_click,
+            mouse_double_click,
+            type_text,
+            key_press,
+            mouse_scroll,
+            rag_insert,
+            rag_query,
+            show_widget,
+            hide_widget,
         ])
         .run(tauri::generate_context!())
         .expect("error running Pluma");

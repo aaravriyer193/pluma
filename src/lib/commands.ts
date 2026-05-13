@@ -21,10 +21,17 @@ export const KNOWN_COMMANDS = [
 
 export type KnownCommand = (typeof KNOWN_COMMANDS)[number];
 
-const GHOST = `You are Pluma, a concise AI ghost editor embedded in the user's OS. Keep responses short — a few lines max unless detail is essential.
-Start your response with exactly [COPY] if the output should replace the user's clipboard text (rewrites, transformations, code), or [CHAT] for conversational or explanatory replies. Nothing else before the prefix. Strip the prefix from the actual output.`;
+const GHOST = `You are Pluma, a concise AI ghost editor. Keep responses short — a few lines max unless detail is essential.
+Start with [COPY] if output replaces clipboard (rewrites, code, transformations) or [CHAT] for conversational replies. Nothing else before the prefix.
+Never truncate output mid-sentence. If a response is long, still complete it fully.`;
 
-export const GHOST_CHAT = `You are Pluma, a concise AI assistant. Keep responses brief. Use markdown when helpful.`;
+export const GHOST_CHAT = `You are Pluma, a concise AI assistant. Keep responses brief. Use markdown when helpful. Never truncate mid-sentence.`;
+
+export const AGENT_SYSTEM = `You are Pluma, an autonomous AI agent running on the user's Windows machine.
+You have tools: run_terminal (PowerShell), read_file, write_file, list_directory, mouse_click, type_text, key_press, take_screenshot, recall (search memory).
+Think step by step. Use tools to accomplish tasks. Be concise in explanations.
+When using run_terminal, prefer PowerShell syntax. Never use destructive commands without asking.
+After completing a task, summarize what you did briefly.`;
 
 export function buildMessages(
   parsed: ParsedCommand,
@@ -51,7 +58,7 @@ export function buildMessages(
     case "bash":
       return [
         { role: "system", content: GHOST },
-        { role: "user", content: `Translate this into a shell/terminal command. Output only the command, no explanation.\n\n${parsed.arg || ctx}` },
+        { role: "user", content: `Translate this into a PowerShell/shell command. Output only the command, no explanation.\n\n${parsed.arg || ctx}` },
       ];
     case "tldr":
       return [
