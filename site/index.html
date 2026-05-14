@@ -3,69 +3,132 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Pluma — The copilot Windows never gave you</title>
-  <meta name="description" content="Your ghost writer, autonomous agent, and AI companion — always one keystroke away."/>
+
+  <!-- Primary SEO -->
+  <title>Pluma — The AI copilot Windows never gave you</title>
+  <meta name="description" content="Pluma is a free Windows overlay that ghost-writes, controls your desktop, browses the web, and remembers everything — one keystroke away. No subscription. No cloud."/>
+  <meta name="keywords" content="Windows AI assistant, AI copilot Windows, desktop AI agent, ghost writer AI, computer use AI, free AI tool Windows"/>
+  <link rel="canonical" href="https://pluma.app/"/>
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website"/>
+  <meta property="og:url"         content="https://pluma.app/"/>
+  <meta property="og:title"       content="Pluma — The AI copilot Windows never gave you"/>
+  <meta property="og:description" content="Ghost-writes. Clicks. Browses. Remembers. One keystroke. Free forever."/>
+  <meta property="og:image"       content="https://pluma.app/og-image.png"/>
+
+  <!-- Twitter -->
+  <meta name="twitter:card"        content="summary_large_image"/>
+  <meta name="twitter:title"       content="Pluma — The AI copilot Windows never gave you"/>
+  <meta name="twitter:description" content="Ghost-writes. Clicks. Browses. Remembers. One keystroke. Free forever."/>
+  <meta name="twitter:image"       content="https://pluma.app/og-image.png"/>
+
+  <!-- JSON-LD structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Pluma",
+    "operatingSystem": "Windows 10, Windows 11",
+    "applicationCategory": "ProductivityApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "AI-powered overlay for Windows that ghost-writes, controls your desktop, runs commands, and remembers your sessions.",
+    "url": "https://pluma.app",
+    "downloadUrl": "https://pluma.app/download.html",
+    "softwareVersion": "0.1.0"
+  }
+  </script>
+
   <link rel="stylesheet" href="style.css"/>
   <style>
     .hero {
-      min-height: calc(100vh - 62px);
+      min-height: calc(100vh - 64px);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      text-align: center; padding: 80px 40px;
+      text-align: center; padding: 100px 40px 80px;
       position: relative; overflow: hidden;
     }
-    .hero::before {
+    .hero-bg { position: absolute; inset: 0; z-index: 0; }
+    .hero-bg img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center 38%;
+      filter: brightness(0.22) saturate(0.55);
+    }
+    .hero-bg::after {
       content: '';
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse 70% 45% at 50% 0%, rgba(255,255,255,0.045) 0%, transparent 70%);
-      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 55% at 50% 0%, rgba(110,231,183,0.04) 0%, transparent 70%),
+        linear-gradient(180deg, rgba(7,7,10,0.55) 0%, rgba(7,7,10,0.32) 40%, rgba(7,7,10,0.78) 80%, var(--bg) 100%);
     }
+    .hero > * { position: relative; z-index: 1; }
+
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
-      font-size: 11px; color: var(--faint); letter-spacing: 0.06em;
+      font-size: 11px; color: var(--faint); letter-spacing: 0.07em;
       background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-      border-radius: 20px; padding: 5px 14px; margin-bottom: 36px;
+      border-radius: 20px; padding: 5px 16px; margin-bottom: 40px;
     }
-    .pulse { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.35); display: inline-block; animation: pulse 2s ease infinite; }
-    @keyframes pulse { 0%,100%{opacity:0.35} 50%{opacity:0.85} }
-    .hero h1 { max-width: 780px; margin-bottom: 24px; }
-    .hero h1 em { font-style: normal; color: var(--dim); }
-    .hero-sub { font-size: 18px; color: var(--dim); max-width: 480px; margin-bottom: 44px; line-height: 1.65; }
-    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-    .shortcut-hint { margin-top: 60px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--faint); }
+    .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--green-hi); flex-shrink: 0; animation: pulse 2.2s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
 
-    .demo-wrap { width: 100%; max-width: 640px; margin: 72px auto 0; }
+    .hero h1 { max-width: 820px; margin-bottom: 26px; }
+    .hero h1 em { font-style: normal; color: var(--dim); }
+    .hero-sub { font-size: 18px; color: var(--dim); max-width: 500px; margin-bottom: 48px; line-height: 1.68; font-weight: 300; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .shortcut-hint { margin-top: 64px; display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--faint); }
+
+    .demo-wrap { width: 100%; max-width: 660px; margin: 72px auto 0; }
     .demo-window {
-      background: rgba(14,14,16,0.92); border: 1px solid var(--border);
-      border-radius: 16px; overflow: hidden;
-      box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.04) inset;
-      animation: fade-up 0.6s ease 0.35s both;
+      background: rgba(10,10,13,0.9); border: 1px solid var(--border2);
+      border-radius: 18px; overflow: hidden;
+      box-shadow: 0 48px 120px rgba(0,0,0,0.8), 0 0 0 0.5px rgba(255,255,255,0.04) inset, 0 0 60px rgba(110,231,183,0.025);
+      animation: fade-up 0.7s cubic-bezier(0.22,1,0.36,1) 0.4s both;
     }
     .demo-bar {
-      display: flex; align-items: center; gap: 12px;
-      padding: 0 18px; height: 62px;
-      border-bottom: 1px solid rgba(255,255,255,0.055);
+      display: flex; align-items: center; gap: 13px;
+      padding: 0 20px; height: 64px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    .demo-bar-logo { width: 18px; height: 18px; opacity: 0.35; flex-shrink: 0; }
-    .demo-input-text { font-size: 16px; color: var(--text); font-family: var(--font); font-weight: 400; }
-    .demo-cur { display: inline-block; width: 2px; height: 17px; background: var(--dim); vertical-align: middle; margin-left: 1px; animation: blink 0.9s step-end infinite; }
+    .demo-bar-logo { width: 18px; height: 18px; opacity: 0.3; flex-shrink: 0; }
+    .demo-input-text { font-size: 15px; color: var(--text); font-family: var(--font); }
+    .demo-cur { display: inline-block; width: 2px; height: 17px; background: var(--green-hi); vertical-align: middle; margin-left: 2px; opacity: 0.7; animation: blink 0.9s step-end infinite; }
     @keyframes blink { 50% { opacity: 0; } }
-    .demo-body { padding: 14px 18px 20px; }
-    .demo-role { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); margin-bottom: 5px; }
-    .demo-msg { font-size: 13px; line-height: 1.65; color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; max-width: 90%; }
+    .demo-body { padding: 16px 20px 22px; }
+    .demo-role { font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--green-hi); margin-bottom: 6px; opacity: 0.7; }
+    .demo-msg { font-size: 13px; line-height: 1.65; color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 10px; padding: 11px 15px; max-width: 92%; }
 
-    .feat-section { padding: 120px 0 80px; }
-    .feat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-top: 56px; }
+    .feat-section { padding: 120px 0 100px; }
+    .feat-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 18px;
+      overflow: hidden; margin-top: 60px;
+    }
     @media(max-width:720px){ .feat-grid { grid-template-columns: 1fr; } }
-    .feat-item { background: var(--bg); padding: 30px 26px; transition: background 0.15s; }
-    .feat-item:hover { background: rgba(255,255,255,0.02); }
-    .feat-glyph { font-size: 20px; margin-bottom: 14px; opacity: 0.7; }
-    .feat-item h3 { font-size: 15px; margin-bottom: 7px; }
+    .feat-item {
+      background: var(--bg); padding: 32px 28px;
+      transition: background 0.18s; position: relative; overflow: hidden;
+    }
+    .feat-item::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(110,231,183,0.4), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .feat-item:hover { background: rgba(255,255,255,0.018); }
+    .feat-item:hover::before { opacity: 1; }
+    .feat-glyph { font-size: 22px; margin-bottom: 16px; opacity: 0.65; display: block; }
+    .feat-item h3 { font-size: 15px; margin-bottom: 8px; }
     .feat-item p { font-size: 13.5px; }
 
-    .cta-band { padding: 100px 0; text-align: center; }
-    .cta-band h2 { margin-bottom: 12px; }
-    .cta-band p { margin-bottom: 36px; }
+    .cta-band { padding: 120px 0; text-align: center; position: relative; overflow: hidden; }
+    .cta-band::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(110,231,183,0.035) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-band h2 { margin-bottom: 14px; position: relative; }
+    .cta-band p  { margin-bottom: 40px; position: relative; }
   </style>
 </head>
 <body>
@@ -87,9 +150,13 @@
 
 <div class="page">
   <section class="hero">
+    <div class="hero-bg" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=75&auto=format&fit=crop" alt="" loading="eager" fetchpriority="high"/>
+    </div>
+
     <div class="hero-badge"><span class="pulse"></span> Free · Windows · Open Source</div>
     <h1 class="fade-up">The copilot<br/><em>Windows never gave you.</em></h1>
-    <p class="hero-sub fade-up fade-up-1">Ghost-writes. Clicks. Browses. Remembers. Runs commands. All from one key — invisible until you need it.</p>
+    <p class="hero-sub fade-up fade-up-1">Ghost-writes. Clicks. Browses. Remembers. Runs commands.<br/>All from one key — invisible until you need it.</p>
     <div class="hero-actions fade-up fade-up-2">
       <a href="download.html" class="btn btn-primary">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16l-6-6h4V4h4v6h4l-6 6zm-8 4h16v-2H4v2z"/></svg>
@@ -97,7 +164,7 @@
       </a>
       <a href="features.html" class="btn btn-ghost">See what it does →</a>
     </div>
-    <div class="shortcut-hint fade-up fade-up-3"><kbd>Alt</kbd> <span>+</span> <kbd>P</kbd> <span>· summon from anywhere</span></div>
+    <div class="shortcut-hint fade-up fade-up-3"><kbd>Alt</kbd> <span>+</span> <kbd>P</kbd> <span style="margin-left:4px">· summon from anywhere</span></div>
 
     <div class="demo-wrap">
       <div class="demo-window">
@@ -113,26 +180,64 @@
     </div>
   </section>
 
+  <!-- Marquee strip -->
+  <div class="marquee-wrap" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Ghost Writing</span><span class="dot">◆</span>
+      <span>Computer Use</span><span class="dot">◆</span>
+      <span>RAG Memory</span><span class="dot">◆</span>
+      <span>Terminal Agent</span><span class="dot">◆</span>
+      <span>Slash Commands</span><span class="dot">◆</span>
+      <span>Overlay UI</span><span class="dot">◆</span>
+      <span>Screen Vision</span><span class="dot">◆</span>
+      <span>Local First</span><span class="dot">◆</span>
+      <span>No Subscription</span><span class="dot">◆</span>
+      <span>Open Source</span><span class="dot">◆</span>
+      <span>Ghost Writing</span><span class="dot">◆</span>
+      <span>Computer Use</span><span class="dot">◆</span>
+      <span>RAG Memory</span><span class="dot">◆</span>
+      <span>Terminal Agent</span><span class="dot">◆</span>
+      <span>Slash Commands</span><span class="dot">◆</span>
+      <span>Overlay UI</span><span class="dot">◆</span>
+      <span>Screen Vision</span><span class="dot">◆</span>
+      <span>Local First</span><span class="dot">◆</span>
+      <span>No Subscription</span><span class="dot">◆</span>
+      <span>Open Source</span><span class="dot">◆</span>
+    </div>
+  </div>
+
+  <!-- Features -->
   <section class="feat-section">
     <div class="container">
-      <div style="text-align:center"><span class="eyebrow">Built different</span><h2>Everything, one keystroke.</h2></div>
+      <div style="text-align:center" class="reveal">
+        <span class="eyebrow">Built different</span>
+        <h2>Everything, one keystroke.</h2>
+      </div>
       <div class="feat-grid">
-        <div class="feat-item"><div class="feat-glyph">✦</div><h3>Ghost Writer</h3><p>Rewrite, polish, summarise, translate clipboard content. /polite /tldr /doc and more.</p></div>
-        <div class="feat-item"><div class="feat-glyph">◎</div><h3>Computer Use</h3><p>Sees your screen, moves the cursor, clicks, types. Opens Chrome. Actually does the task.</p></div>
-        <div class="feat-item"><div class="feat-glyph">◈</div><h3>RAG Memory</h3><p>Remembers every session. Searches past context with full-text matching. No cloud sync.</p></div>
-        <div class="feat-item"><div class="feat-glyph">⟁</div><h3>Terminal Agent</h3><p>Run PowerShell, read files, list directories, write scripts — all in plain English.</p></div>
-        <div class="feat-item"><div class="feat-glyph">⊡</div><h3>Overlay UI</h3><p>Transparent, always-on-top, zero chrome. Lives in Alt+P. Vanishes when you look away.</p></div>
-        <div class="feat-item"><div class="feat-glyph">≋</div><h3>Slash Commands</h3><p>/bash /regex /explain /translate /doc — instant transforms without context switching.</p></div>
+        <div class="feat-item reveal reveal-delay-1"><span class="feat-glyph">✦</span><h3>Ghost Writer</h3><p>Rewrite, polish, summarise, translate clipboard content in any tone. /polite /tldr /doc and more.</p></div>
+        <div class="feat-item reveal reveal-delay-2"><span class="feat-glyph">◎</span><h3>Computer Use</h3><p>Sees your screen, moves the cursor, clicks, types. Opens Chrome. Actually does the task.</p></div>
+        <div class="feat-item reveal reveal-delay-3"><span class="feat-glyph">◈</span><h3>RAG Memory</h3><p>Remembers every session. Searches past context with full-text matching. No cloud sync needed.</p></div>
+        <div class="feat-item reveal reveal-delay-1"><span class="feat-glyph">⟁</span><h3>Terminal Agent</h3><p>Run PowerShell, read files, list directories, write scripts — all in plain English.</p></div>
+        <div class="feat-item reveal reveal-delay-2"><span class="feat-glyph">⊡</span><h3>Overlay UI</h3><p>Transparent, always-on-top, zero chrome. Lives in Alt+P. Vanishes when you look away.</p></div>
+        <div class="feat-item reveal reveal-delay-3"><span class="feat-glyph">≋</span><h3>Slash Commands</h3><p>/bash /regex /explain /translate /doc — instant transforms without any context switching.</p></div>
       </div>
     </div>
   </section>
 
+  <!-- Nature quote break -->
+  <div class="nature-band reveal">
+    <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=70&auto=format&fit=crop" alt="" loading="lazy"/>
+    <div class="nature-band-overlay"></div>
+    <p class="nature-band-text">"The best interface is the one that <strong>disappears</strong> the moment you don't need it."</p>
+  </div>
+
+  <!-- CTA -->
   <section class="cta-band">
-    <div class="container-sm" style="text-align:center">
-      <span class="eyebrow">Free forever</span>
-      <h2>Press Alt+P. The rest is Pluma.</h2>
-      <p>No subscription. No cloud account. Runs locally on your machine.</p>
-      <a href="download.html" class="btn btn-primary">Download free →</a>
+    <div class="container-sm">
+      <span class="eyebrow reveal">Free forever</span>
+      <h2 class="reveal">Press Alt+P.<br/>The rest is Pluma.</h2>
+      <p class="reveal">No subscription. No cloud account. Runs locally on your machine.</p>
+      <div class="reveal" style="margin-top:40px"><a href="download.html" class="btn btn-primary">Download free →</a></div>
     </div>
   </section>
 
@@ -155,16 +260,21 @@ const demos = [
   {i:"make this email sound more professional", r:"Done — rewrote it, tightened the tone. Copied to clipboard."},
   {i:"open youtube and search for lo-fi beats", r:"Opening Chrome, searching YouTube for lo-fi beats now…"},
   {i:"/tldr", r:"• Revenue up 12% QoQ\n• Supply chain risk flagged for Q4\n• Board approval deadline: Friday"},
-  {i:"find my project proposal in Downloads and open it", r:"Found Project_Proposal_v3.docx in Downloads — opening."},
+  {i:"find my project proposal in Downloads", r:"Found Project_Proposal_v3.docx in Downloads — opening now."},
 ];
 let di=0,ci=0;
-const te=document.getElementById('demo-text'), be=document.getElementById('demo-body'), me=document.getElementById('demo-msg');
+const te=document.getElementById('demo-text'),be=document.getElementById('demo-body'),me=document.getElementById('demo-msg');
 function go(){
-  const d=demos[di%demos.length]; be.style.display='none';
-  if(ci<d.i.length){te.textContent=d.i.slice(0,++ci);setTimeout(go,44+Math.random()*28);}
-  else{setTimeout(()=>{te.textContent='';be.style.display='block';me.textContent=d.r;ci=0;di++;setTimeout(go,3400);},550);}
+  const d=demos[di%demos.length];be.style.display='none';
+  if(ci<d.i.length){te.textContent=d.i.slice(0,++ci);setTimeout(go,42+Math.random()*26);}
+  else{setTimeout(()=>{te.textContent='';be.style.display='block';me.textContent=d.r;ci=0;di++;setTimeout(go,3600);},500);}
 }
-setTimeout(go,900);
+setTimeout(go,800);
+
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 </script>
 </body>
 </html>
