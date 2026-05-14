@@ -45,21 +45,21 @@
       min-height: calc(100vh - 64px);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      text-align: center; padding: 100px 40px 80px;
+      text-align: center; padding: 120px 40px 80px;
       position: relative; overflow: hidden;
     }
     .hero-bg { position: absolute; inset: 0; z-index: 0; }
     .hero-bg img {
       width: 100%; height: 100%;
-      object-fit: cover; object-position: center 38%;
-      filter: brightness(0.22) saturate(0.55);
+      object-fit: cover; object-position: center 55%;
+      filter: brightness(0.28) saturate(0.5);
     }
     .hero-bg::after {
       content: '';
       position: absolute; inset: 0;
       background:
         radial-gradient(ellipse 80% 55% at 50% 0%, rgba(110,231,183,0.04) 0%, transparent 70%),
-        linear-gradient(180deg, rgba(7,7,10,0.55) 0%, rgba(7,7,10,0.32) 40%, rgba(7,7,10,0.78) 80%, var(--bg) 100%);
+        linear-gradient(180deg, rgba(7,7,10,0.7) 0%, rgba(7,7,10,0.25) 35%, rgba(7,7,10,0.45) 65%, var(--bg) 100%);
     }
     .hero > * { position: relative; z-index: 1; }
 
@@ -228,7 +228,7 @@
   <div class="nature-band reveal">
     <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=70&auto=format&fit=crop" alt="" loading="lazy"/>
     <div class="nature-band-overlay"></div>
-    <p class="nature-band-text">"The best interface is the one that <strong>disappears</strong> the moment you don't need it."</p>
+    <p class="nature-band-text">"The best interface is the one that &nbsp;<strong>disappears</strong>&nbsp; the moment you don't need it."</p>
   </div>
 
   <!-- CTA -->
